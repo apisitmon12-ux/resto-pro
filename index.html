@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RESTO PRO — ระบบบริหารร้านอาหารอัจฉริยะ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── CSS Variables ── */
+:root {
+  --bg: #f0f6ff;
+  --s1: #ffffff;
+  --s2: #f5f9ff;
+  --s3: #eaf3ff;
+  --border: #cfe0f5;
+  --border2: #aac8ee;
+  --a1: #7ab8f5;
+  --a2: #5ec4c4;
+  --a3: #a0c8f8;
+  --a4: #6fa8dc;
+  --a5: #b8e0f7;
+  --tx: #1a3a5c;
+  --tx2: #4a6880;
+  --tx3: #7a9ab8;
+  --warn: #e67e22;
+  --danger: #e74c3c;
+  --success: #1a8888;
+  --font: 'Sarabun', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --r: 12px;
+}
+
+/* ── Reset ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--tx); font-family: var(--font); font-size: 14px; height: 100vh; overflow: hidden; display: flex; }
+
+/* ── Sidebar ── */
+.sb { width: 210px; background: var(--s1); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; box-shadow: 2px 0 12px rgba(122,184,245,.08); }
+.sb-logo { padding: 20px 18px 16px; border-bottom: 1px solid var(--border); background: linear-gradient(135deg,#f0f8ff,#e8f2ff); }
+.sb-brand { font-size: 17px; font-weight: 700; background: linear-gradient(135deg,#7ab8f5,#6fa8dc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.5px; }
+.sb-sub { font-size: 10px; color: var(--tx3); margin-top: 2px; letter-spacing: 1.2px; text-transform: uppercase; }
+.sb-nav { flex: 1; overflow-y: auto; padding: 10px 0; }
+.sb-sec { padding: 12px 18px 5px; font-size: 9px; color: var(--tx3); letter-spacing: 1.5px; text-transform: uppercase; }
+.sb-item { display: flex; align-items: center; gap: 9px; padding: 9px 18px; cursor: pointer; color: var(--tx3); font-size: 13px; transition: .15s; position: relative; }
+.sb-item:hover { color: var(--tx); background: var(--s3); }
+.sb-item.on { color: #2060a0; background: rgba(122,184,245,.15); }
+.sb-item.on::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 3px; background: var(--a1); border-radius: 0 3px 3px 0; }
+.sb-icon { font-size: 15px; width: 20px; text-align: center; }
+.sb-badge { margin-left: auto; font-size: 9px; font-family: var(--mono); background: rgba(160,200,248,.3); color: #4a80b8; padding: 2px 7px; border-radius: 10px; }
+.sb-bottom { padding: 14px 18px; border-top: 1px solid var(--border); background: #f5f9ff; }
+.sb-online { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--tx3); }
+.pulse { width: 7px; height: 7px; border-radius: 50%; background: #5ec4c4; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(94,196,196,.5)} 50%{opacity:.7;box-shadow:0 0 0 5px rgba(94,196,196,0)} }
+
+/* ── Main ── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { display: flex; align-items: center; padding: 0 22px; height: 54px; border-bottom: 1px solid var(--border); background: var(--s1); gap: 12px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(122,184,245,.06); }
+.tb-title { font-size: 14px; font-weight: 600; flex: 1; color: var(--tx); }
+.tb-clock { font-family: var(--mono); font-size: 12px; color: var(--tx3); }
+.tb-date { font-size: 11px; color: var(--tx3); }
+.tb-divider { width: 1px; height: 20px; background: var(--border); }
+.tb-alert { position: relative; cursor: pointer; padding: 6px 12px; border-radius: 20px; background: rgba(231,76,60,.1); color: #c0392b; font-size: 12px; border: 1px solid rgba(231,76,60,.25); }
+.content { flex: 1; overflow-y: auto; padding: 18px 22px; }
+
+/* ── Buttons ── */
+.btn { padding: 7px 16px; border-radius: 20px; border: none; cursor: pointer; font-family: var(--font); font-size: 12px; font-weight: 500; transition: .15s; }
+.btn-lime { background: linear-gradient(135deg,#7ab8f5,#5a9de0); color: #fff; box-shadow: 0 2px 8px rgba(122,184,245,.4); }
+.btn-lime:hover { filter: brightness(1.05); box-shadow: 0 4px 12px rgba(122,184,245,.5); }
+.btn-ghost { background: transparent; border: 1px solid var(--border2); color: var(--tx3); }
+.btn-ghost:hover { color: var(--tx); border-color: var(--tx3); background: var(--s3); }
+.btn-teal { background: rgba(94,196,196,.2); color: #1a8888; border: 1px solid rgba(94,196,196,.4); }
+.btn-coral { background: rgba(231,76,60,.12); color: #c0392b; border: 1px solid rgba(231,76,60,.25); }
+.btn-orange { background: rgba(230,126,34,.12); color: #c67c1a; border: 1px solid rgba(230,126,34,.25); }
+.btn-sm { padding: 4px 12px; font-size: 11px; }
+
+/* ── Cards ── */
+.card { background: var(--s1); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; box-shadow: 0 2px 8px rgba(122,184,245,.05); }
+.card-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.card-title { font-size: 11px; color: var(--tx3); text-transform: uppercase; letter-spacing: .8px; font-weight: 500; }
+
+/* ── Grids ── */
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 14px; }
+.g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 14px; }
+.g21 { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 14px; }
+.g12 { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; margin-bottom: 14px; }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.span2 { grid-column: span 2; }
+.span3 { grid-column: span 3; }
+
+/* ── KPI ── */
+.kpi-val { font-family: var(--mono); font-size: 28px; font-weight: 500; line-height: 1; margin: 6px 0 4px; }
+.kpi-lbl { font-size: 11px; color: var(--tx3); }
+.kpi-chg { font-size: 11px; margin-top: 5px; }
+.kpi-icon { font-size: 22px; opacity: .7; }
+.up { color: #1a9090; }
+.dn { color: #c04060; }
+.warn { color: #e67e22; }
+
+/* ── Badge ── */
+.badge { font-size: 10px; padding: 3px 9px; border-radius: 20px; font-family: var(--mono); }
+.b-lime { background: rgba(122,184,245,.15); color: #2060a0; }
+.b-teal { background: rgba(94,196,196,.2); color: #1a8888; }
+.b-coral { background: rgba(231,76,60,.15); color: #c0392b; }
+.b-violet { background: rgba(136,152,224,.2); color: #5a6eb0; }
+.b-gray { background: var(--s3); color: var(--tx3); }
+.b-orange { background: rgba(230,126,34,.12); color: #c67c1a; }
+
+/* ── Table ── */
+table { width: 100%; border-collapse: collapse; }
+th { font-size: 10px; color: var(--tx3); text-transform: uppercase; letter-spacing: 1px; padding: 0 0 9px; text-align: left; border-bottom: 1px solid var(--border); }
+td { padding: 10px 0; border-bottom: 1px solid rgba(207,224,245,.5); font-size: 13px; vertical-align: middle; color: var(--tx); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(122,184,245,.03); }
+
+/* ── Bars ── */
+.bars { display: flex; align-items: flex-end; gap: 6px; height: 70px; margin-top: 10px; }
+.bar-w { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.bar { width: 100%; border-radius: 4px 4px 0 0; min-height: 3px; }
+.bar-lbl { font-size: 9px; color: var(--tx3); font-family: var(--mono); }
+.bar-staff-dot { width: 8px; height: 8px; border-radius: 50%; background: #5ec4c4; margin-top: 2px; }
+
+/* ── Progress ── */
+.prog-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(207,224,245,.4); }
+.prog-row:last-child { border-bottom: none; }
+.prog-name { flex: 1; font-size: 13px; }
+.prog-track { width: 90px; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 3px; }
+.prog-val { font-family: var(--mono); font-size: 11px; width: 55px; text-align: right; }
+
+/* ── Orders ── */
+.order-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--s2); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 8px; cursor: pointer; transition: .15s; }
+.order-row:hover { border-color: var(--a1); box-shadow: 0 2px 8px rgba(122,184,245,.1); }
+.order-row.sla-breach { border-color: #e74c3c; background: #fff5f5; }
+.order-tbl { font-family: var(--mono); font-size: 22px; font-weight: 500; color: #2060a0; width: 30px; text-align: center; flex-shrink: 0; }
+.order-info { flex: 1; }
+.order-items { font-size: 11px; color: var(--tx3); margin-top: 2px; }
+.timer { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+
+/* ── Staff ── */
+.staff-card { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(207,224,245,.4); }
+.staff-card:last-child { border-bottom: none; }
+.staff-av { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.staff-name { font-size: 13px; font-weight: 500; color: var(--tx); }
+.staff-role { font-size: 11px; color: var(--tx3); }
+.staff-hrs { font-family: var(--mono); font-size: 12px; margin-left: auto; }
+
+/* ── AI Panel ── */
+.ai-wrap { background: var(--s1); border: 1px solid var(--border); border-radius: var(--r); display: flex; flex-direction: column; height: 420px; box-shadow: 0 4px 16px rgba(122,184,245,.08); }
+.ai-hd { padding: 13px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg,#f0f8ff,#e8f2ff); border-radius: var(--r) var(--r) 0 0; }
+.ai-av { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg,#7ab8f5,#6fa8dc); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; box-shadow: 0 2px 8px rgba(122,184,245,.4); }
+.ai-name-lbl { font-size: 12px; font-weight: 600; color: var(--tx); }
+.ai-st { font-size: 10px; color: #1a9090; }
+.ai-msgs { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #f8fbff; }
+.msg { max-width: 88%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.6; }
+.msg-ai { background: #fff; border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 3px; color: var(--tx); box-shadow: 0 1px 4px rgba(122,184,245,.08); }
+.msg-u { background: linear-gradient(135deg,rgba(122,184,245,.15),rgba(184,168,232,.1)); border: 1px solid rgba(122,184,245,.25); align-self: flex-end; color: #2060a0; border-bottom-right-radius: 3px; }
+.msg-t { font-size: 10px; color: var(--tx3); margin-top: 4px; }
+.ai-in-row { padding: 12px 14px; border-top: 1px solid var(--border); display: flex; gap: 8px; background: #f5f9ff; border-radius: 0 0 var(--r) var(--r); }
+.ai-in { flex: 1; background: #fff; border: 1.5px solid var(--border); border-radius: 20px; padding: 8px 14px; color: var(--tx); font-family: var(--font); font-size: 13px; outline: none; transition: .15s; }
+.ai-in:focus { border-color: var(--a1); box-shadow: 0 0 0 3px rgba(122,184,245,.2); }
+.ai-in::placeholder { color: var(--tx3); }
+
+/* ── Spin ── */
+.spin { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--a1); border-radius: 50%; animation: sp .7s linear infinite; display: inline-block; }
+@keyframes sp { to { transform: rotate(360deg); } }
+.thinking-row { display: flex; align-items: center; gap: 8px; color: var(--tx3); font-size: 12px; }
+
+/* ── Tabs ── */
+.tab-bar { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 16px; gap: 0; }
+.tab { padding: 9px 18px; cursor: pointer; font-size: 13px; color: var(--tx3); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: .15s; border-radius: 8px 8px 0 0; }
+.tab:hover { color: var(--tx); background: var(--s3); }
+.tab.on { color: #2060a0; border-bottom-color: var(--a1); background: rgba(122,184,245,.05); }
+.pane { display: none; }
+.pane.on { display: block; }
+
+/* ── Chip ── */
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 20px; font-size: 11px; cursor: pointer; border: 1px solid var(--border2); color: var(--tx3); transition: .15s; }
+.chip:hover, .chip.on { background: rgba(122,184,245,.15); color: #2060a0; border-color: rgba(122,184,245,.4); }
+
+/* ── Suggestion ── */
+.sugg { background: var(--s2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 13px; margin-bottom: 8px; cursor: pointer; transition: .15s; }
+.sugg:hover { border-color: var(--a1); background: #f0f7ff; box-shadow: 0 2px 8px rgba(122,184,245,.1); }
+.sugg-type { font-size: 9px; color: var(--tx3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+.sugg-text { font-size: 12px; line-height: 1.5; color: var(--tx); }
+
+/* ── Alert Banner ── */
+.alert-banner { border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; border-left: 3px solid; display: flex; align-items: flex-start; gap: 10px; }
+.alert-banner.sla { background: rgba(231,76,60,.07); border-color: #e74c3c; }
+.alert-banner.warn { background: rgba(230,126,34,.07); border-color: #e67e22; }
+.alert-banner.info { background: rgba(122,184,245,.1); border-color: #7ab8f5; }
+.alert-banner.ok { background: rgba(94,196,196,.1); border-color: #5ec4c4; }
+.alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.alert-body { flex: 1; }
+.alert-title { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+.alert-desc { font-size: 11px; color: var(--tx3); line-height: 1.5; }
+.alert-time { font-family: var(--mono); font-size: 10px; color: var(--tx3); flex-shrink: 0; }
+
+/* ── Payment Method Bars ── */
+.pay-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(207,224,245,.4); }
+.pay-row:last-child { border-bottom: none; }
+.pay-icon { font-size: 16px; width: 24px; text-align: center; }
+.pay-name { font-size: 12px; flex: 1; }
+.pay-track { flex: 2; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.pay-fill { height: 100%; border-radius: 3px; }
+.pay-amt { font-family: var(--mono); font-size: 11px; color: var(--tx2); width: 65px; text-align: right; }
+.pay-pct { font-family: var(--mono); font-size: 10px; color: var(--tx3); width: 32px; text-align: right; }
+
+/* ── Petty Cash Form ── */
+.petty-form { background: var(--s2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+.petty-form input, .petty-form select { background: #fff; border: 1.5px solid var(--border); border-radius: 8px; padding: 6px 10px; font-family: var(--font); font-size: 12px; color: var(--tx); outline: none; transition: .15s; width: 100%; }
+.petty-form input:focus, .petty-form select:focus { border-color: var(--a1); }
+.petty-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(207,224,245,.4); font-size: 12px; }
+.petty-row:last-child { border-bottom: none; }
+
+/* ── Clock-in/out ── */
+.clock-btn { padding: 5px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 11px; font-family: var(--font); font-weight: 500; transition: .15s; }
+.clock-in { background: rgba(94,196,196,.2); color: #1a8888; border: 1px solid rgba(94,196,196,.4); }
+.clock-in:hover { background: rgba(94,196,196,.35); }
+.clock-out { background: rgba(231,76,60,.12); color: #c0392b; border: 1px solid rgba(231,76,60,.25); }
+.clock-out:hover { background: rgba(231,76,60,.22); }
+.clocked-in { background: rgba(94,196,196,.15); border: 1px solid rgba(94,196,196,.3); border-radius: 6px; padding: 2px 8px; font-size: 10px; color: #1a8888; font-family: var(--mono); }
+.clocked-out { background: var(--s3); border: 1px solid var(--border); border-radius: 6px; padding: 2px 8px; font-size: 10px; color: var(--tx3); font-family: var(--mono); }
+
+/* ── SPLH Metric ── */
+.splh-overlay { position: relative; }
+.splh-bar-group { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; }
+.splh-bar { width: 100%; border-radius: 4px 4px 0 0; min-height: 3px; }
+.staff-count-dot { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 8px; color: #1a8888; font-weight: 600; }
+
+/* ── Auto-PO ── */
+.auto-po-btn { display: flex; align-items: center; gap: 6px; background: linear-gradient(135deg,rgba(231,76,60,.12),rgba(230,126,34,.08)); border: 1px solid rgba(231,76,60,.3); border-radius: 8px; padding: 7px 12px; cursor: pointer; transition: .15s; width: 100%; margin-bottom: 6px; font-family: var(--font); }
+.auto-po-btn:hover { background: linear-gradient(135deg,rgba(231,76,60,.2),rgba(230,126,34,.15)); box-shadow: 0 2px 8px rgba(231,76,60,.15); }
+.auto-po-label { font-size: 11px; color: #c0392b; font-weight: 600; }
+.auto-po-detail { font-size: 10px; color: var(--tx3); margin-top: 1px; }
+
+/* ── Recipe Deduction Log ── */
+.deduct-log { background: rgba(230,126,34,.05); border: 1px solid rgba(230,126,34,.2); border-radius: 8px; padding: 10px; margin-top: 10px; }
+.deduct-item { display: flex; align-items: center; justify-content: space-between; padding: 3px 0; font-size: 11px; color: var(--tx2); }
+.deduct-minus { color: #c0392b; font-family: var(--mono); font-size: 10px; }
+
+/* ── EOD Summary ── */
+.eod-wrap { background: linear-gradient(135deg,#eaf6ff,#e8f0ff); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; }
+.eod-item { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(207,224,245,.4); }
+.eod-item:last-child { border-bottom: none; }
+.eod-num { font-family: var(--mono); font-size: 14px; font-weight: 700; color: #2060a0; width: 20px; flex-shrink: 0; }
+.eod-text { font-size: 12px; line-height: 1.6; color: var(--tx); }
+
+/* ── Misc ── */
+.div { height: 1px; background: var(--border); margin: 12px 0; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(122,184,245,.3); border-radius: 2px; }
+.hl { color: #2060a0; font-family: var(--mono); }
+.hl2 { color: #1a8888; font-family: var(--mono); }
+.hl3 { color: #4a80b8; }
+.toast { position: fixed; bottom: 20px; right: 20px; background: #fff; border: 1px solid var(--a1); color: #2060a0; padding: 10px 18px; border-radius: 20px; font-size: 13px; z-index: 999; opacity: 0; transition: .3s; pointer-events: none; box-shadow: 0 4px 16px rgba(122,184,245,.3); max-width: 320px; }
+.toast.show { opacity: 1; }
+.mb12 { margin-bottom: 12px; }
+.row-center { display: flex; align-items: center; gap: 8px; }
+.ml-auto { margin-left: auto; }
+.small { font-size: 11px; color: var(--tx3); }
+.mono { font-family: var(--mono); }
+.fw6 { font-weight: 600; }
+.fpane { display: none; }
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<div class="sb">
+  <div class="sb-logo">
+    <div class="sb-brand">RESTO PRO</div>
+    <div class="sb-sub">Restaurant OS v2.0</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">ภาพรวม</div>
+    <div class="sb-item on" onclick="go('dash',this)"><span class="sb-icon">⬡</span>Dashboard</div>
+    <div class="sb-item" onclick="go('live',this)"><span class="sb-icon">🔴</span>Live Orders<span class="sb-badge" id="live-count">5</span></div>
+    <div class="sb-sec">บริหาร</div>
+    <div class="sb-item" onclick="go('finance',this)"><span class="sb-icon">💰</span>การเงิน</div>
+    <div class="sb-item" onclick="go('stock',this)"><span class="sb-icon">📦</span>วัตถุดิบ</div>
+    <div class="sb-item" onclick="go('staff',this)"><span class="sb-icon">👥</span>พนักงาน</div>
+    <div class="sb-item" onclick="go('menu',this)"><span class="sb-icon">🍽️</span>เมนู & ราคา</div>
+    <div class="sb-sec">วิเคราะห์</div>
+    <div class="sb-item" onclick="go('report',this)"><span class="sb-icon">📊</span>รายงาน</div>
+    <div class="sb-item" onclick="go('ai',this)"><span class="sb-icon">🤖</span>AI ผู้ช่วย</div>
+  </nav>
+  <div class="sb-bottom">
+    <div class="sb-online"><span class="pulse"></span>ระบบทำงานปกติ</div>
+    <div style="font-size:10px;color:var(--tx3);margin-top:4px;" id="sb-time">--:--</div>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+  <div class="topbar">
+    <div class="tb-title" id="page-title">⬡ Dashboard</div>
+    <div class="tb-clock" id="clock">--:--:--</div>
+    <div class="tb-divider"></div>
+    <div class="tb-date" id="dateLbl"></div>
+    <div class="tb-divider"></div>
+    <div class="tb-alert" onclick="go('stock',document.querySelectorAll('.sb-item')[4])">⚠ 3 รายการวิกฤต</div>
+    <button class="btn btn-lime" onclick="quickAsk('สรุปสถานการณ์ร้านตอนนี้')">🤖 ถาม AI</button>
+  </div>
+
+  <div class="content" id="content">
+
+    <!-- ══ DASHBOARD PANE ══ -->
+    <div id="pane-dash" class="pane on">
+      <!-- SLA + Proactive Alert Banners -->
+      <div id="dashAlerts" style="margin-bottom:14px;"></div>
+
+      <div class="g4">
+        <div class="card">
+          <div class="card-hd"><div class="card-title">ยอดขายวันนี้</div><span class="kpi-icon">💰</span></div>
+          <div class="kpi-val" style="color:#2060a0">฿31,480</div>
+          <div class="kpi-lbl">เป้า ฿28,000</div>
+          <div class="kpi-chg up">↑ 12.4% จากเมื่อวาน</div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title">กำไรขั้นต้น</div><span class="kpi-icon">📈</span></div>
+          <div class="kpi-val" style="color:#1a8888">63.2%</div>
+          <div class="kpi-lbl">เป้า 60%</div>
+          <div class="kpi-chg up">↑ 3.2% จากเป้า</div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title">โต๊ะ / ออเดอร์</div><span class="kpi-icon">🍽️</span></div>
+          <div class="kpi-val" style="color:#5a6eb0">9<span style="font-size:16px;color:var(--tx3)">/12</span></div>
+          <div class="kpi-lbl">ออเดอร์ทั้งหมด 52 รายการ</div>
+          <div class="kpi-chg up">↑ 8 จากเมื่อวาน</div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title">ค่าแรงวันนี้</div><span class="kpi-icon">👥</span></div>
+          <div class="kpi-val" style="color:#4a80b8">฿4,200</div>
+          <div class="kpi-lbl">พนักงาน 7 คน on-duty</div>
+          <div class="kpi-chg">14% ของรายได้ <span class="up">✓</span></div>
+        </div>
+      </div>
+
+      <div class="g21">
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-title">รายได้รายชั่วโมง</div>
+            <div class="row-center">
+              <span class="chip on">วันนี้</span>
+              <span class="chip">เมื่อวาน</span>
+            </div>
+          </div>
+          <div class="bars" id="hourBars"></div>
+          <div class="div"></div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:2px;">
+            <div><div class="small">ชั่วโมงยอดดี</div><div class="mono" style="font-size:13px;color:#2060a0;margin-top:2px;">19:00–21:00</div></div>
+            <div><div class="small">ค่าเฉลี่ย/โต๊ะ</div><div class="mono" style="font-size:13px;color:#1a8888;margin-top:2px;">฿3,498</div></div>
+            <div><div class="small">Turnover rate</div><div class="mono" style="font-size:13px;color:#5a6eb0;margin-top:2px;">1.8x</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title">AI แจ้งเตือน</div><span class="badge b-lime">Live</span></div>
+          <div class="sugg" onclick="quickAsk('วิสกี้แดงเหลือ 2 ขวด ควรสั่งเพิ่มเท่าไหร่คืนนี้?')">
+            <div class="sugg-type">⚠️ สต็อกวิกฤต</div>
+            <div class="sugg-text">วิสกี้แดงเหลือ 2 ขวด — คาดขายอีก 6 คืนนี้</div>
+          </div>
+          <div class="sugg" onclick="quickAsk('โต๊ะ 11 รอนาน 31 นาที ควรทำอะไร?')">
+            <div class="sugg-type" style="color:#e74c3c">🚨 SLA Breach</div>
+            <div class="sugg-text">โต๊ะ 11 รออาหาร 31 นาที — เกินเกณฑ์ SLA 30 นาที</div>
+          </div>
+          <div class="sugg" onclick="quickAsk('คืนวันศุกร์โดยปกติจะมีคนมากแค่ไหน และควรเตรียมอะไรบ้าง?')">
+            <div class="sugg-type">💡 คืนนี้คาดการณ์</div>
+            <div class="sugg-text">คืนศุกร์ — คาดลูกค้าเพิ่ม 35% ควรเรียกพนักงานสำรอง</div>
+          </div>
+          <div class="sugg" onclick="quickAsk('เมนูไหนที่ขายดีแต่กำไรต่ำ ควรปรับราคาได้แล้ว?')">
+            <div class="sugg-type">💰 โอกาสเพิ่มกำไร</div>
+            <div class="sugg-text">ปลาหมึกย่างขายดีแต่กำไรแค่ 28% — ควรปรับราคาขึ้น ฿20</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="g3">
+        <div class="card">
+          <div class="card-hd"><div class="card-title">เมนูขายดีวันนี้</div><span class="badge b-teal">Top 5</span></div>
+          <div id="topMenuDash"></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title">สต็อกวิกฤต</div><span class="badge b-coral">ต้องสั่งด่วน</span></div>
+          <div id="critStockDash"></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title">พนักงาน on-duty</div><span class="badge b-violet">7 คน</span></div>
+          <div id="staffDash"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ LIVE ORDERS PANE ══ -->
+    <div id="pane-live" class="pane">
+      <!-- SLA Alert -->
+      <div class="alert-banner sla" style="margin-bottom:14px;">
+        <div class="alert-icon">🚨</div>
+        <div class="alert-body">
+          <div class="alert-title" style="color:#c0392b">SLA Breach — โต๊ะ 11 รอเกิน 30 นาที</div>
+          <div class="alert-desc">อาหาร: ข้าวผัดปู, สเต็กหมู, ไวน์แดง · รอนาน <strong>50 นาที</strong> · ต้องแจ้งลูกค้าและเร่งครัวทันที</div>
+        </div>
+        <div class="alert-time">18:13</div>
+      </div>
+
+      <div class="g21">
+        <div>
+          <div class="card mb12">
+            <div class="card-hd">
+              <div class="card-title">ออเดอร์กำลังดำเนินการ</div>
+              <div class="row-center">
+                <span class="badge b-coral">5 รายการ</span>
+                <button class="btn btn-ghost btn-sm" onclick="quickAsk('สรุปสถานะออเดอร์ทั้งหมดและบอกว่าต้องทำอะไรก่อน')">วิเคราะห์</button>
+                <button class="btn btn-orange btn-sm" onclick="simulateOrder()">+ จำลองออเดอร์</button>
+              </div>
+            </div>
+            <div id="liveOrders"></div>
+          </div>
+          <div class="card">
+            <div class="card-hd"><div class="card-title">ออเดอร์เสร็จแล้ววันนี้</div><span class="small">47 รายการ</span></div>
+            <table><thead><tr><th>โต๊ะ</th><th>รายการหลัก</th><th>ยอด</th><th>เวลา</th><th>เสร็จใน</th></tr></thead>
+            <tbody id="doneOrders"></tbody></table>
+          </div>
+        </div>
+        <div>
+          <div class="card mb12">
+            <div class="card-hd"><div class="card-title">แผนผังโต๊ะ</div></div>
+            <div id="tableMap" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>
+          </div>
+          <div class="card">
+            <div class="card-hd"><div class="card-title">สถิติครัว</div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div><div class="small">เวลาเฉลี่ย</div><div class="mono fw6" style="font-size:18px;color:#1a8888;margin-top:2px;">18 นาที</div></div>
+              <div><div class="small">ออเดอร์ล่าช้า</div><div class="mono fw6" style="font-size:18px;color:#e74c3c;margin-top:2px;">2 รายการ</div></div>
+              <div><div class="small">ผลิตภาพครัว</div><div class="mono fw6" style="font-size:18px;color:#2060a0;margin-top:2px;">87%</div></div>
+              <div><div class="small">SLA Breach</div><div class="mono fw6" style="font-size:18px;color:#e74c3c;margin-top:2px;">1 โต๊ะ</div></div>
+            </div>
+          </div>
+          <div class="card" style="margin-top:12px;">
+            <div class="card-hd"><div class="card-title">ตัดสต็อก (Recipe Costing)</div><span class="badge b-orange">Auto-Deduct</span></div>
+            <div id="recipeDeductLog">
+              <div class="deduct-log">
+                <div style="font-size:11px;color:var(--tx3);margin-bottom:6px;">ตัดจากออเดอร์ล่าสุด (จำลองออเดอร์)</div>
+                <div class="deduct-item"><span>เนื้อหมู (ผัดกะเพรา)</span><span class="deduct-minus">-0.15 กก.</span></div>
+                <div class="deduct-item"><span>น้ำมันพืช</span><span class="deduct-minus">-0.05 ล.</span></div>
+                <div class="deduct-item"><span>ข้าวสวย</span><span class="deduct-minus">-0.12 กก.</span></div>
+                <div class="deduct-item"><span>เบียร์ช้าง ×2</span><span class="deduct-minus">-2 กระป๋อง</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FINANCE PANE ══ -->
+    <div id="pane-finance" class="pane">
+      <div class="tab-bar">
+        <div class="tab on" onclick="ftab('day',this)">วันนี้</div>
+        <div class="tab" onclick="ftab('week',this)">สัปดาห์</div>
+        <div class="tab" onclick="ftab('month',this)">เดือน</div>
+      </div>
+
+      <!-- Finance Day -->
+      <div id="finance-day" class="fpane" style="display:block;">
+        <div class="g4">
+          <div class="card"><div class="card-hd"><div class="card-title">รายได้รวม</div></div><div class="kpi-val" style="color:#2060a0">฿31,480</div><div class="kpi-chg up">↑ 12.4%</div></div>
+          <div class="card"><div class="card-hd"><div class="card-title">ต้นทุนวัตถุดิบ</div></div><div class="kpi-val" style="color:#4a80b8">฿11,570</div><div class="kpi-chg">36.8% ของรายได้ <span class="up">✓</span></div></div>
+          <div class="card"><div class="card-hd"><div class="card-title">ค่าแรง</div></div><div class="kpi-val" style="color:#5a6eb0">฿4,200</div><div class="kpi-chg">13.3% <span class="up">✓</span></div></div>
+          <div class="card"><div class="card-hd"><div class="card-title">กำไรสุทธิ (หลังเบ็ดเตล็ด)</div></div><div class="kpi-val" style="color:#1a8888" id="netProfitDisplay">฿12,890</div><div class="kpi-chg up" id="netMarginDisplay">Margin 40.9%</div></div>
+        </div>
+
+        <div class="g2">
+          <!-- Payment Methods Breakdown -->
+          <div class="card">
+            <div class="card-hd"><div class="card-title">รายได้แยกช่องทางชำระ</div><span class="badge b-lime">Live</span></div>
+            <div class="pay-row">
+              <div class="pay-icon">💵</div>
+              <div class="pay-name">เงินสด</div>
+              <div class="pay-track"><div class="pay-fill" style="width:42%;background:#7ab8f5"></div></div>
+              <div class="pay-amt" style="color:#2060a0">฿13,221</div>
+              <div class="pay-pct">42%</div>
+            </div>
+            <div class="pay-row">
+              <div class="pay-icon">📱</div>
+              <div class="pay-name">QR / PromptPay</div>
+              <div class="pay-track"><div class="pay-fill" style="width:35%;background:#5ec4c4"></div></div>
+              <div class="pay-amt" style="color:#1a8888">฿11,018</div>
+              <div class="pay-pct">35%</div>
+            </div>
+            <div class="pay-row">
+              <div class="pay-icon">💳</div>
+              <div class="pay-name">บัตรเครดิต</div>
+              <div class="pay-track"><div class="pay-fill" style="width:15%;background:#8898e0"></div></div>
+              <div class="pay-amt" style="color:#5a6eb0">฿4,722</div>
+              <div class="pay-pct">15%</div>
+            </div>
+            <div class="pay-row">
+              <div class="pay-icon">🛵</div>
+              <div class="pay-name">Delivery (Grab/Line)</div>
+              <div class="pay-track"><div class="pay-fill" style="width:8%;background:#90c8f0"></div></div>
+              <div class="pay-amt" style="color:#4a80b8">฿2,519</div>
+              <div class="pay-pct">8%</div>
+            </div>
+            <div class="div"></div>
+            <div style="font-size:11px;color:var(--tx3);line-height:1.8;">
+              💡 QR/PromptPay ไม่มีค่าธรรมเนียม · บัตรเครดิต MDR ~1.5% (฿71)<br>
+              Delivery หักค่า GP ~30% (฿756 หายไป)
+            </div>
+          </div>
+
+          <!-- Petty Cash / Misc Expenses -->
+          <div class="card">
+            <div class="card-hd">
+              <div class="card-title">ค่าใช้จ่ายเบ็ดเตล็ด</div>
+              <span class="badge b-orange" id="pettyTotalBadge">฿820 วันนี้</span>
+            </div>
+            <div class="petty-form">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                <div>
+                  <div class="small" style="margin-bottom:4px;">รายการ</div>
+                  <select id="pettyCategory">
+                    <option>ค่าน้ำ-ไฟ</option>
+                    <option>ค่าขนส่ง/เดลิเวอรี่</option>
+                    <option>ค่าซ่อมบำรุง</option>
+                    <option>ของใช้สิ้นเปลือง</option>
+                    <option>ค่าทำความสะอาด</option>
+                    <option>อื่นๆ</option>
+                  </select>
+                </div>
+                <div>
+                  <div class="small" style="margin-bottom:4px;">จำนวนเงิน (฿)</div>
+                  <input type="number" id="pettyAmount" placeholder="0" min="0">
+                </div>
+              </div>
+              <input type="text" id="pettyNote" placeholder="หมายเหตุ (ไม่บังคับ)" style="margin-bottom:8px;">
+              <button class="btn btn-coral btn-sm" style="width:100%;border-radius:8px;" onclick="addPettyExpense()">+ บันทึกค่าใช้จ่าย</button>
+            </div>
+            <div id="pettyList"></div>
+          </div>
+        </div>
+
+        <div class="g21">
+          <div class="card">
+            <div class="card-hd"><div class="card-title">โครงสร้างต้นทุน</div><button class="btn btn-ghost btn-sm" onclick="quickAsk('วิเคราะห์โครงสร้างต้นทุนและแนะนำวิธีลดต้นทุน')">AI วิเคราะห์</button></div>
+            <table><thead><tr><th>รายการ</th><th>จำนวน</th><th>% รายได้</th><th>เทียบเป้า</th></tr></thead><tbody>
+              <tr><td>วัตถุดิบอาหาร</td><td class="mono">฿7,840</td><td class="mono">24.9%</td><td><span class="badge b-teal">ตามเป้า</span></td></tr>
+              <tr><td>วัตถุดิบเครื่องดื่ม/เหล้า</td><td class="mono">฿3,730</td><td class="mono">11.8%</td><td><span class="badge b-teal">ตามเป้า</span></td></tr>
+              <tr><td>ค่าแรง</td><td class="mono">฿4,200</td><td class="mono">13.3%</td><td><span class="badge b-teal">ตามเป้า</span></td></tr>
+              <tr><td>ค่าน้ำ-ไฟ</td><td class="mono">฿820</td><td class="mono">2.6%</td><td><span class="badge b-teal">ตามเป้า</span></td></tr>
+              <tr><td>ค่าใช้จ่ายเบ็ดเตล็ด</td><td class="mono" id="pettyTotalRow">฿0</td><td class="mono" id="pettyPctRow">0.0%</td><td><span class="badge b-gray">—</span></td></tr>
+              <tr><td>ของเสีย/สูญเสีย</td><td class="mono">฿340</td><td class="mono">1.1%</td><td><span class="badge b-coral">สูงกว่าเป้า</span></td></tr>
+            </tbody></table>
+          </div>
+          <div class="card">
+            <div class="card-hd"><div class="card-title">รายได้แยกหมวด</div></div>
+            <div class="prog-row"><div class="prog-name">อาหาร</div><div class="prog-track"><div class="prog-fill" style="width:58%;background:#7ab8f5"></div></div><div class="prog-val" style="color:#2060a0">฿18,258</div></div>
+            <div class="prog-row"><div class="prog-name">เหล้า / บาร์</div><div class="prog-track"><div class="prog-fill" style="width:32%;background:#8898e0"></div></div><div class="prog-val" style="color:#5a6eb0">฿10,074</div></div>
+            <div class="prog-row"><div class="prog-name">เครื่องดื่ม</div><div class="prog-track"><div class="prog-fill" style="width:10%;background:#5ec4c4"></div></div><div class="prog-val" style="color:#1a8888">฿3,148</div></div>
+            <div class="div"></div>
+            <div style="font-size:12px;color:var(--tx3);line-height:1.8;">
+              เหล้า/บาร์ ให้กำไรสูงสุด 68% margin<br>
+              อาหารให้กำไร 55% margin<br>
+              <span style="color:#1a8888">💡 เพิ่มยอดบาร์ = เพิ่มกำไรได้เร็วที่สุด</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Finance Week -->
+      <div id="finance-week" class="fpane">
+        <div class="g4">
+          <div class="card"><div class="card-hd"><div class="card-title">รายได้สัปดาห์</div></div><div class="kpi-val" style="color:#2060a0">฿187,340</div><div class="kpi-chg up">↑ 18.2%</div></div>
+          <div class="card"><div class="card-hd"><div class="card-title">ต้นทุนรวม</div></div><div class="kpi-val" style="color:#4a80b8">฿112,404</div><div class="kpi-chg">60.0%</div></div>
+          <div class="card"><div class="card-hd"><div class="card-title">กำไรสุทธิ</div></div><div class="kpi-val" style="color:#1a8888">฿74,936</div><div class="kpi-chg up">↑ 15%</div></div>
+          <div class="card"><div class="card-hd"><div class="card-title">วันยอดดีที่สุด</div></div><div class="kpi-val" style="color:#5a6eb0">เสาร์</div><div class="kpi-chg">฿45,200</div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title">รายได้รายวัน 7 วัน</div><button class="btn btn-ghost btn-sm" onclick="quickAsk('วิเคราะห์แนวโน้มรายได้สัปดาห์นี้และคาดการณ์สัปดาห์หน้า')">AI คาดการณ์</button></div>
+          <div class="bars" id="weekBars" style="height:80px;"></div>
+        </div>
+      </div>
+
+      <!-- Finance Month -->
+      <div id="finance-month" class="fpane">
+        <div class="g4">
+          <div class="card"><div class="card-hd"><div class="card-title">รายได้เดือนนี้</div></div><div class="kpi-val" style="color:#2060a0">฿742,800</div><div class="kpi-chg up">↑ 22%</div></div>
+          <div class="card"><div class="card-hd"><div class="card-title">กำไรสุทธิ</div></div><div class="kpi-val" style="color:#1a8888">฿297,120</div><div class="kpi-chg up">Margin 40%</div></div>
+          <div class="card"><div class="card-hd"><div class="card-title">ค่าเช่า + ค่าใช้จ่ายคงที่</div></div><div class="kpi-val" style="color:#4a80b8">฿85,000</div><div class="kpi-chg">11.4%</div></div>
+          <div class="card"><div class="card-hd"><div class="card-title">กำไรหลังหักทุกอย่าง</div></div><div class="kpi-val" style="color:#5a6eb0">฿212,120</div><div class="kpi-chg up">28.6% margin</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ INVENTORY / STOCK PANE ══ -->
+    <div id="pane-stock" class="pane">
+      <!-- Auto-PO Alert -->
+      <div id="autoPOSection" style="margin-bottom:14px;"></div>
+
+      <div class="g21">
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-title">วัตถุดิบทั้งหมด</div>
+            <div class="row-center">
+              <span class="chip on" onclick="filterStock('all',this)">ทั้งหมด</span>
+              <span class="chip" onclick="filterStock('crit',this)">วิกฤต</span>
+              <span class="chip" onclick="filterStock('ok',this)">ปกติ</span>
+              <button class="btn btn-ghost btn-sm" onclick="quickAsk('วิเคราะห์สต็อกทั้งหมดและแนะนำการสั่งซื้อที่คุ้มที่สุด')">AI วิเคราะห์</button>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>รายการ</th><th>คงเหลือ</th><th>ระดับ</th><th>ใช้/วัน</th><th>อยู่ได้อีก</th><th>สถานะ</th></tr></thead>
+            <tbody id="stockTable"></tbody>
+          </table>
+        </div>
+        <div>
+          <div class="card mb12">
+            <div class="card-hd"><div class="card-title">ต้องสั่งด่วน</div><span class="badge b-coral">3 รายการ</span></div>
+            <div id="urgentStock"></div>
+          </div>
+          <div class="card">
+            <div class="card-hd"><div class="card-title">ต้นทุนวัตถุดิบ / เดือน</div></div>
+            <div class="kpi-val" style="font-size:22px;color:#2060a0;">฿186,400</div>
+            <div class="div"></div>
+            <div class="prog-row"><div class="prog-name">อาหาร</div><div class="prog-track"><div class="prog-fill" style="width:65%;background:#7ab8f5"></div></div><div class="prog-val small">฿121,160</div></div>
+            <div class="prog-row"><div class="prog-name">เครื่องดื่ม</div><div class="prog-track"><div class="prog-fill" style="width:35%;background:#8898e0"></div></div><div class="prog-val small">฿65,240</div></div>
+          </div>
+          <!-- Recipe Costing Card -->
+          <div class="card" style="margin-top:12px;">
+            <div class="card-hd"><div class="card-title">Recipe Costing</div><span class="badge b-lime">Auto</span></div>
+            <div style="font-size:11px;color:var(--tx3);line-height:1.8;margin-bottom:8px;">ต้นทุนต่อจาน (คำนวณจากสต็อกจริง)</div>
+            <div class="prog-row"><div class="prog-name" style="font-size:12px;">ผัดกะเพราหมู+ข้าว</div><div class="prog-track" style="width:60px;"><div class="prog-fill" style="width:40%;background:#7ab8f5"></div></div><div class="prog-val" style="color:#2060a0;width:50px;">฿32</div></div>
+            <div class="prog-row"><div class="prog-name" style="font-size:12px;">ต้มยำกุ้ง</div><div class="prog-track" style="width:60px;"><div class="prog-fill" style="width:60%;background:#7ab8f5"></div></div><div class="prog-val" style="color:#2060a0;width:50px;">฿108</div></div>
+            <div class="prog-row"><div class="prog-name" style="font-size:12px;">ปลาหมึกย่าง</div><div class="prog-track" style="width:60px;"><div class="prog-fill" style="width:72%;background:#e74c3c"></div></div><div class="prog-val" style="color:#c0392b;width:50px;">฿115</div></div>
+            <div class="prog-row"><div class="prog-name" style="font-size:12px;">สเต็กหมู</div><div class="prog-track" style="width:60px;"><div class="prog-fill" style="width:40%;background:#5ec4c4"></div></div><div class="prog-val" style="color:#1a8888;width:50px;">฿88</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STAFF PANE ══ -->
+    <div id="pane-staff" class="pane">
+      <div class="g21">
+        <div>
+          <div class="card mb12">
+            <div class="card-hd">
+              <div class="card-title">พนักงานทั้งหมด — Clock-in/out</div>
+              <div class="row-center">
+                <span class="badge b-teal" id="activeStaffBadge">7 คน Active</span>
+                <button class="btn btn-ghost btn-sm" onclick="quickAsk('วิเคราะห์ประสิทธิภาพพนักงานและแนะนำการจัดกะที่เหมาะสม')">AI วิเคราะห์กะ</button>
+              </div>
+            </div>
+            <table><thead><tr><th>ชื่อ</th><th>ตำแหน่ง</th><th>กะ</th><th>OT</th><th>ค่าแรง/วัน</th><th>ผลงาน</th><th>สถานะ</th></tr></thead>
+            <tbody id="staffTable"></tbody></table>
+          </div>
+          <div class="g2" style="margin-bottom:0">
+            <div class="card">
+              <div class="card-title" style="margin-bottom:10px">ค่าแรงเดือนนี้</div>
+              <div class="kpi-val" style="font-size:22px;color:#5a6eb0">฿124,800</div>
+              <div class="kpi-chg">12.8 พนักงาน avg</div>
+            </div>
+            <div class="card">
+              <div class="card-title" style="margin-bottom:10px">OT เดือนนี้</div>
+              <div class="kpi-val" style="font-size:22px;color:#4a80b8">฿8,400</div>
+              <div class="kpi-chg dn">↑ 20% จากเดือนก่อน</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card mb12">
+            <div class="card-hd"><div class="card-title">กะวันนี้</div><span class="badge b-violet">7 คน</span></div>
+            <div id="staffShift"></div>
+          </div>
+          <!-- SPLH Metric Card -->
+          <div class="card mb12">
+            <div class="card-hd"><div class="card-title">SPLH — Sales per Labor Hour</div><span class="badge b-lime">KPI</span></div>
+            <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">ยอดขาย ÷ จำนวนชั่วโมงทำงานรวม · เป้า ≥ ฿950/ชม.</div>
+            <div id="splhBars" style="display:flex;align-items:flex-end;gap:4px;height:80px;margin-bottom:6px;"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px;">
+              <div style="text-align:center;"><div class="small">SPLH เฉลี่ย</div><div class="mono fw6" style="font-size:16px;color:#2060a0;margin-top:2px;">฿992</div></div>
+              <div style="text-align:center;"><div class="small">ชม.รวม on-duty</div><div class="mono fw6" style="font-size:16px;color:#1a8888;margin-top:2px;" id="totalLaborHrs">31.7</div></div>
+              <div style="text-align:center;"><div class="small">ชั่วโมงยอดดี</div><div class="mono fw6" style="font-size:16px;color:#5a6eb0;margin-top:2px;">19:00</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hd"><div class="card-title">ประสิทธิภาพทีม</div></div>
+            <div class="prog-row"><div class="prog-name">บริการ (ลูกค้าให้คะแนน)</div><div class="prog-track"><div class="prog-fill" style="width:88%;background:#5ec4c4"></div></div><div class="prog-val" style="color:#1a8888">4.4/5</div></div>
+            <div class="prog-row"><div class="prog-name">ความตรงต่อเวลา</div><div class="prog-track"><div class="prog-fill" style="width:92%;background:#7ab8f5"></div></div><div class="prog-val" style="color:#2060a0">92%</div></div>
+            <div class="prog-row"><div class="prog-name">ยอดขายต่อคน/วัน</div><div class="prog-track"><div class="prog-fill" style="width:75%;background:#8898e0"></div></div><div class="prog-val" style="color:#5a6eb0">฿4,497</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MENU PANE ══ -->
+    <div id="pane-menu" class="pane">
+      <div class="g21">
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-title">เมนูทั้งหมด & วิเคราะห์กำไร</div>
+            <button class="btn btn-ghost btn-sm" onclick="quickAsk('เมนูไหนขายดีแต่กำไรน้อย ควรปรับราคาหรือตัดออก?')">AI แนะนำ</button>
+          </div>
+          <table><thead><tr><th>เมนู</th><th>ราคาขาย</th><th>ต้นทุน</th><th>กำไร%</th><th>ขายวันนี้</th><th>สถานะ</th></tr></thead>
+          <tbody id="menuTable"></tbody></table>
+        </div>
+        <div>
+          <div class="card mb12">
+            <div class="card-hd"><div class="card-title">Matrix วิเคราะห์เมนู</div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div style="background:#e8f4ff;border:1px solid #b0d4f4;border-radius:10px;padding:10px;">
+                <div style="font-size:10px;color:#1a8888;margin-bottom:6px;">⭐ STAR (ขายดี + กำไรดี)</div>
+                <div style="font-size:12px;line-height:1.8;color:var(--tx);">เบียร์ช้าง<br>วิสกี้แดง<br>ผัดกะเพรา</div>
+              </div>
+              <div style="background:#eef5ff;border:1px solid #b8d4f4;border-radius:10px;padding:10px;">
+                <div style="font-size:10px;color:#2060a0;margin-bottom:6px;">💰 PLOW (กำไรดี แต่ขายน้อย)</div>
+                <div style="font-size:12px;line-height:1.8;color:var(--tx);">ไวน์แดง<br>สเต็กหมู<br>ทะเลผัดผง</div>
+              </div>
+              <div style="background:#eaefff;border:1px solid #b8c8f0;border-radius:10px;padding:10px;">
+                <div style="font-size:10px;color:#e67e22;margin-bottom:6px;">❓ PUZZLE (ขายดี กำไรน้อย)</div>
+                <div style="font-size:12px;line-height:1.8;color:var(--tx);">ปลาหมึกย่าง<br>ต้มยำกุ้ง</div>
+              </div>
+              <div style="background:#e8f0ff;border:1px solid #aac8ee;border-radius:10px;padding:10px;">
+                <div style="font-size:10px;color:#4a80b8;margin-bottom:6px;">🗑️ DOG (ขายน้อย กำไรน้อย)</div>
+                <div style="font-size:12px;line-height:1.8;color:var(--tx);">สปาเกตตี้<br>ซุปข้าวโพด</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hd"><div class="card-title">กำไรเฉลี่ยแยกหมวด</div></div>
+            <div class="prog-row"><div class="prog-name">เครื่องดื่มแอลกอฮอล์</div><div class="prog-track"><div class="prog-fill" style="width:68%;background:#8898e0"></div></div><div class="prog-val" style="color:#5a6eb0">68%</div></div>
+            <div class="prog-row"><div class="prog-name">อาหารทะเล</div><div class="prog-track"><div class="prog-fill" style="width:55%;background:#80c4f0"></div></div><div class="prog-val" style="color:#1a7a9a">55%</div></div>
+            <div class="prog-row"><div class="prog-name">อาหารจานด่วน</div><div class="prog-track"><div class="prog-fill" style="width:48%;background:#7ab8f5"></div></div><div class="prog-val" style="color:#2060a0">48%</div></div>
+            <div class="prog-row"><div class="prog-name">ของทอด</div><div class="prog-track"><div class="prog-fill" style="width:35%;background:#a0c8f8"></div></div><div class="prog-val" style="color:#4a80b8">35%</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ REPORT PANE ══ -->
+    <div id="pane-report" class="pane">
+      <div class="g4">
+        <div class="card"><div class="card-hd"><div class="card-title">ลูกค้า/วัน (เฉลี่ย)</div></div><div class="kpi-val" style="color:#2060a0">84</div><div class="kpi-chg up">↑ 12% MoM</div></div>
+        <div class="card"><div class="card-hd"><div class="card-title">ค่าใช้จ่าย/คน</div></div><div class="kpi-val" style="color:#1a8888">฿375</div><div class="kpi-chg up">↑ ฿28</div></div>
+        <div class="card"><div class="card-hd"><div class="card-title">รีวิว Google</div></div><div class="kpi-val" style="color:#4a80b8">4.6★</div><div class="kpi-chg">128 รีวิว</div></div>
+        <div class="card"><div class="card-hd"><div class="card-title">ลูกค้าขาประจำ</div></div><div class="kpi-val" style="color:#5a6eb0">38%</div><div class="kpi-chg up">↑ 5%</div></div>
+      </div>
+      <div class="g21">
+        <div class="card">
+          <div class="card-hd"><div class="card-title">รายได้ 30 วันล่าสุด</div><button class="btn btn-ghost btn-sm" onclick="quickAsk('วิเคราะห์แนวโน้มรายได้ 30 วันที่ผ่านมาและคาดการณ์เดือนหน้า')">AI คาดการณ์</button></div>
+          <div class="bars" id="monthBars" style="height:90px;"></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title">เป้าหมายเดือนนี้</div></div>
+          <div style="margin-bottom:12px;">
+            <div class="small" style="margin-bottom:4px;">รายได้ ฿742,800 / ฿800,000</div>
+            <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;"><div style="width:92.9%;height:100%;background:#7ab8f5;border-radius:4px;"></div></div>
+            <div class="small" style="margin-top:3px;color:#2060a0;">92.9% ของเป้า</div>
+          </div>
+          <div style="margin-bottom:12px;">
+            <div class="small" style="margin-bottom:4px;">กำไร ฿297,120 / ฿320,000</div>
+            <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;"><div style="width:92.9%;height:100%;background:#5ec4c4;border-radius:4px;"></div></div>
+            <div class="small" style="margin-top:3px;color:#1a8888;">92.9% ของเป้า</div>
+          </div>
+          <div>
+            <div class="small" style="margin-bottom:4px;">ลูกค้า 2,184 / 2,500 คน</div>
+            <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;"><div style="width:87%;height:100%;background:#8898e0;border-radius:4px;"></div></div>
+            <div class="small" style="margin-top:3px;color:#5a6eb0;">87.4% ของเป้า</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EOD Summary Report -->
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-hd">
+          <div class="card-title">สรุปผลประจำวัน (EOD Report)</div>
+          <div class="row-center">
+            <span class="badge b-teal">Auto-Generated</span>
+            <button class="btn btn-lime btn-sm" onclick="generateEOD()">🤖 สร้าง EOD ด้วย AI</button>
+          </div>
+        </div>
+        <div id="eodReport">
+          <div class="eod-wrap">
+            <div id="eodContent">
+              <div class="eod-item">
+                <div class="eod-num">1.</div>
+                <div class="eod-text">💰 <strong>ยอดขาย ฿31,480</strong> เกินเป้า ฿28,000 อยู่ 12.4% — ขับเคลื่อนโดยเบียร์ช้าง 24 แก้ว และปลาหมึกย่าง 14 จาน ช่วงพีค 19:00–21:00</div>
+              </div>
+              <div class="eod-item">
+                <div class="eod-num">2.</div>
+                <div class="eod-text">⚠️ <strong>SLA Breach 1 รายการ</strong> — โต๊ะ 11 รอ 50 นาที (เกินเกณฑ์ 30 นาที) ควรทบทวนกระบวนการส่งอาหาร และพิจารณาเพิ่มกำลังครัวช่วงวันศุกร์</div>
+              </div>
+              <div class="eod-item">
+                <div class="eod-num">3.</div>
+                <div class="eod-text">📦 <strong>วัตถุดิบวิกฤต 3 รายการ</strong> — วิสกี้แดง (2 ขวด), น้ำมันพืช (1.5 ล.), เนื้อหมู (2.1 กก.) ต้องสั่งเช้าพรุ่งนี้ก่อน 09:00</div>
+              </div>
+              <div class="eod-item">
+                <div class="eod-num">4.</div>
+                <div class="eod-text">👥 <strong>SPLH วันนี้ ฿992/ชม.</strong> เกินเป้า ฿950 — พนักงาน 7 คน ทำงานรวม 31.7 ชั่วโมง ค่าแรงอยู่ที่ 13.3% ของรายได้ ถือว่าดีมาก</div>
+              </div>
+              <div class="eod-item">
+                <div class="eod-num">5.</div>
+                <div class="eod-text">💡 <strong>โอกาสพรุ่งนี้</strong> — ปลาหมึกย่างขายดีสุด (14 จาน) แต่กำไรแค่ 28% ควรปรับราคาขึ้น ฿20 และโปรโมทไวน์แดง (68% margin) ให้มากขึ้น</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ AI ASSISTANT PANE ══ -->
+    <div id="pane-ai" class="pane">
+      <!--
+        ⚠️ PRODUCTION SECURITY NOTE:
+        The current implementation calls the Anthropic API directly from the browser using
+        `anthropic-dangerous-direct-browser-access: true`. This exposes the API key to end users.
+
+        For production deployment, replace the fetch() call below with a call to your own
+        backend endpoint, e.g.:
+          POST /api/ai-chat
+          Body: { messages: [...], systemContext: "..." }
+        Your backend server holds the ANTHROPIC_API_KEY securely in environment variables
+        and proxies the request to api.anthropic.com/v1/messages.
+        Never commit API keys to version control.
+      -->
+      <div class="g21" style="height:calc(100vh - 130px);">
+        <div class="ai-wrap" style="height:100%;">
+          <div class="ai-hd">
+            <div class="ai-av">AI</div>
+            <div>
+              <div class="ai-name-lbl">RESTO Intelligence</div>
+              <div class="ai-st">● Claude — พร้อมให้คำปรึกษา</div>
+            </div>
+            <button class="btn btn-ghost btn-sm ml-auto" onclick="clearChat()">ล้างบทสนทนา</button>
+          </div>
+          <div class="ai-msgs" id="ai-msgs">
+            <div class="msg msg-ai">
+              สวัสดีครับ! ผมคือ RESTO Intelligence 🍽️<br><br>
+              ผมดูแลข้อมูลร้านคุณแบบ real-time — วันนี้ยอดขาย <span class="hl">฿31,480</span> กำไร <span class="hl2">63.2%</span> และมีการแจ้งเตือน <span class="hl3">3 รายการ</span> ที่ต้องดำเนินการ<br><br>
+              ถามผมได้ทุกเรื่องเกี่ยวกับร้านครับ — การเงิน, สต็อก, พนักงาน, เมนู หรือกลยุทธ์ธุรกิจ
+              <div class="msg-t">เริ่มต้นระบบ</div>
+            </div>
+          </div>
+          <div class="ai-in-row">
+            <input class="ai-in" id="ai-in" placeholder="ถามเกี่ยวกับร้าน เช่น ควรปรับราคาเมนูไหน? หรือ พนักงานพอไหมคืนนี้?" onkeydown="if(event.key==='Enter')sendAI()">
+            <button class="btn btn-lime" onclick="sendAI()">ส่ง →</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;">
+          <div class="card">
+            <div class="card-title" style="margin-bottom:10px;">คำถามด่วน</div>
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <button class="btn btn-ghost" style="text-align:left;font-size:12px;padding:8px 12px;" onclick="quickAsk('วันนี้ควรโปรโมทเมนูไหนเพื่อเพิ่มกำไรสูงสุด?')">💡 เมนูไหนควรโปรโมทคืนนี้?</button>
+              <button class="btn btn-ghost" style="text-align:left;font-size:12px;padding:8px 12px;" onclick="quickAsk('สต็อกที่ต้องสั่งด่วนมีอะไรบ้าง และควรสั่งเท่าไหร่?')">📦 สั่งวัตถุดิบอะไรด่วน?</button>
+              <button class="btn btn-ghost" style="text-align:left;font-size:12px;padding:8px 12px;" onclick="quickAsk('พนักงานพอสำหรับคืนศุกร์ไหม ควรเรียกใครมาเพิ่ม?')">👥 พนักงานพอคืนนี้ไหม?</button>
+              <button class="btn btn-ghost" style="text-align:left;font-size:12px;padding:8px 12px;" onclick="quickAsk('เมนูไหนควรตัดออกจากรายการเพราะขายไม่ดีและกำไรน้อย?')">🗑️ เมนูไหนควรตัดออก?</button>
+              <button class="btn btn-ghost" style="text-align:left;font-size:12px;padding:8px 12px;" onclick="quickAsk('ต้นทุนเหล้าแพงขึ้น ควรปรับราคาขายยังไงให้ลูกค้ายังมา?')">🍺 ปรับราคาเหล้ายังไง?</button>
+              <button class="btn btn-ghost" style="text-align:left;font-size:12px;padding:8px 12px;" onclick="quickAsk('แผนโปรโมชั่นสำหรับเดือนหน้าที่เหมาะกับร้านอาหาร+บาร์')">🎉 ไอเดียโปรโมชั่นเดือนหน้า</button>
+              <button class="btn btn-ghost" style="text-align:left;font-size:12px;padding:8px 12px;" onclick="quickAsk('วิเคราะห์จุดแข็งจุดอ่อนของร้านและแนะนำวิธีพัฒนา')">📊 วิเคราะห์ธุรกิจรอบด้าน</button>
+              <button class="btn btn-ghost" style="text-align:left;font-size:12px;padding:8px 12px;" onclick="runEODviaAI()">📋 สร้างรายงานสรุปวันนี้ (EOD)</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom:10px;">สถิติ AI วันนี้</div>
+            <div style="font-size:12px;color:var(--tx3);line-height:2;">
+              คำถาม: <span style="color:#2060a0;font-family:var(--mono);" id="ai-cnt">0</span> ครั้ง<br>
+              ประหยัดเวลา: <span style="color:#1a8888;font-family:var(--mono);" id="t-saved">0</span> นาที<br>
+              แจ้งเตือนอัตโนมัติ: <span style="color:#2060a0;font-family:var(--mono);">4</span> รายการ<br>
+              ความแม่นยำ: <span style="color:#1a8888;font-family:var(--mono);">94%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   RESTO PRO — Unified Application Script v2.0
+   ══════════════════════════════════════════════════ */
+
+// ── Clock ──
+function tick(){
+  const n = new Date();
+  document.getElementById('clock').textContent = n.toLocaleTimeString('th-TH');
+  document.getElementById('sb-time').textContent = n.toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short'});
+  document.getElementById('dateLbl').textContent = n.toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'});
+}
+setInterval(tick, 1000); tick();
+
+// ── Toast ──
+function toast(msg, type='info'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = type==='error' ? '#e74c3c' : type==='success' ? '#5ec4c4' : 'var(--a1)';
+  t.style.color = type==='error' ? '#c0392b' : type==='success' ? '#1a8888' : '#2060a0';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Navigation ──
+function go(id, el){
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('on'));
+  document.getElementById('pane-'+id).classList.add('on');
+  if(el) el.classList.add('on');
+  const titles = {
+    dash:'⬡ Dashboard', live:'🔴 Live Orders',
+    finance:'💰 การเงิน', stock:'📦 วัตถุดิบ',
+    staff:'👥 พนักงาน', menu:'🍽️ เมนู & ราคา',
+    report:'📊 รายงาน', ai:'🤖 AI ผู้ช่วย'
+  };
+  document.getElementById('page-title').textContent = titles[id] || id;
+}
+
+// ── Finance Tabs ──
+function ftab(id, el){
+  document.querySelectorAll('.fpane').forEach(p => { p.style.display = 'none'; });
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById('finance-'+id).style.display = 'block';
+  el.classList.add('on');
+}
+
+// ════════════════════════════════════
+// ── SHARED DATA STORE (Reactive State)
+// ════════════════════════════════════
+const STORE = {
+  revenue: 31480,
+  grossProfitPct: 63.2,
+  pettyExpenses: [
+    { cat:'ค่าน้ำ-ไฟ', amt: 820, note:'ค่าไฟรายวัน', time:'14:30' }
+  ],
+  stocks: [
+    { n:'เบียร์ช้าง',  q:12,  unit:'โหล',  qStr:'12 โหล',  pct:80, use:'2 โหล',   days:'6 วัน',  st:'b-teal',  stl:'ปกติ',  reorderAt:20 },
+    { n:'วิสกี้แดง',   q:2,   unit:'ขวด',  qStr:'2 ขวด',   pct:8,  use:'3 ขวด',   days:'<1 วัน', st:'b-coral', stl:'วิกฤต', reorderAt:30 },
+    { n:'เนื้อหมู',    q:2.1, unit:'กก.',  qStr:'2.1 กก.', pct:21, use:'1.5 กก.',  days:'1.4 วัน',st:'b-coral', stl:'วิกฤต', reorderAt:25 },
+    { n:'น้ำมันพืช',  q:1.5, unit:'ลิตร', qStr:'1.5 ลิตร',pct:15, use:'0.8 ล.',   days:'1.9 วัน',st:'b-coral', stl:'วิกฤต', reorderAt:20 },
+    { n:'ปลาหมึก',    q:4.2, unit:'กก.',  qStr:'4.2 กก.', pct:52, use:'0.8 กก.',  days:'5.3 วัน',st:'b-lime',  stl:'ปกติ',  reorderAt:20 },
+    { n:'ไวน์แดง',    q:6,   unit:'ขวด',  qStr:'6 ขวด',   pct:60, use:'1 ขวด',   days:'6 วัน',  st:'b-teal',  stl:'ปกติ',  reorderAt:15 },
+    { n:'ข้าวสวย',    q:8,   unit:'กก.',  qStr:'8 กก.',   pct:80, use:'2 กก.',   days:'4 วัน',  st:'b-teal',  stl:'ปกติ',  reorderAt:20 },
+    { n:'น้ำมะนาว',  q:2,   unit:'ลิตร', qStr:'2 ลิตร',  pct:40, use:'0.5 ล.',   days:'4 วัน',  st:'b-lime',  stl:'ปกติ',  reorderAt:15 },
+  ],
+  staffData: [
+    { n:'สมชาย ก.', r:'หัวหน้าครัว',          shift:'16:00–24:00', ot:'1ชม.', wage:900, wageStr:'฿900', perf:92, clr:'#7ab8f5', clockedIn:true,  clockIn:'16:00', totalHrs:6.5 },
+    { n:'มาลี ข.',  r:'พนักงานเสิร์ฟ',         shift:'16:00–24:00', ot:'—',    wage:700, wageStr:'฿700', perf:88, clr:'#5ec4c4', clockedIn:true,  clockIn:'16:05', totalHrs:6.0 },
+    { n:'วิชัย ค.', r:'บาร์เทนเดอร์',          shift:'17:00–01:00', ot:'—',    wage:750, wageStr:'฿750', perf:95, clr:'#90c8f0', clockedIn:true,  clockIn:'17:02', totalHrs:5.0 },
+    { n:'สุดา ง.',  r:'แคชเชียร์',              shift:'16:00–24:00', ot:'—',    wage:650, wageStr:'฿650', perf:91, clr:'#8898e0', clockedIn:true,  clockIn:'15:58', totalHrs:6.1 },
+    { n:'อนุชา จ.', r:'ครัว',                   shift:'15:00–23:00', ot:'2ชม.', wage:700, wageStr:'฿700', perf:80, clr:'#60d0d0', clockedIn:true,  clockIn:'15:01', totalHrs:7.0 },
+    { n:'ปวีณา ฉ.', r:'พนักงานเสิร์ฟ',         shift:'17:00–01:00', ot:'—',    wage:650, wageStr:'฿650', perf:86, clr:'#a0b8f8', clockedIn:false, clockIn:'—',     totalHrs:0   },
+    { n:'ธนา ช.',   r:'ล้างจาน/ทำความสะอาด',   shift:'16:00–24:00', ot:'—',    wage:500, wageStr:'฿500', perf:78, clr:'#7ab8d8', clockedIn:true,  clockIn:'16:10', totalHrs:5.9 },
+  ],
+  orders: [
+    { t:3,  items:'ผัดกะเพราหมู, ต้มยำกุ้ง, เบียร์ช้าง ×2', total:'฿480',   time:'18:42', min:21, st:'กำลังทำ',     b:'b-lime',   sla:false },
+    { t:7,  items:'วิสกี้แดง, โซดา, ปลาหมึกย่าง',             total:'฿1,240', time:'18:38', min:25, st:'พร้อมเสิร์ฟ', b:'b-teal',   sla:false },
+    { t:11, items:'ข้าวผัดปู, สเต็กหมู, ไวน์แดง',             total:'฿890',   time:'18:13', min:50, st:'รอนาน!',      b:'b-coral',  sla:true  },
+    { t:2,  items:'ก๋วยเตี๋ยวเป็ด, น้ำส้ม',                  total:'฿220',   time:'18:50', min:13, st:'กำลังทำ',     b:'b-lime',   sla:false },
+    { t:5,  items:'แกงเขียวหวาน, เบียร์สิงห์ ×3',            total:'฿680',   time:'18:45', min:18, st:'กำลังทำ',     b:'b-lime',   sla:false },
+  ],
+
+  // Recipe map: order items → ingredient deductions
+  recipeMap: {
+    'ผัดกะเพราหมู':    [['เนื้อหมู',0.15,'กก.'],['น้ำมันพืช',0.05,'ล.'],['ข้าวสวย',0.12,'กก.']],
+    'ต้มยำกุ้ง':        [['น้ำมะนาว',0.08,'ล.']],
+    'เบียร์ช้าง':       [['เบียร์ช้าง',1,'โหล']],
+    'ปลาหมึกย่าง':      [['ปลาหมึก',0.25,'กก.'],['น้ำมันพืช',0.03,'ล.']],
+    'วิสกี้แดง':        [['วิสกี้แดง',1,'ขวด']],
+    'ข้าวผัดปู':        [['น้ำมันพืช',0.05,'ล.'],['ข้าวสวย',0.20,'กก.']],
+    'สเต็กหมู':         [['เนื้อหมู',0.22,'กก.'],['น้ำมันพืช',0.04,'ล.']],
+    'ไวน์แดง':          [['ไวน์แดง',1,'ขวด']],
+    'แกงเขียวหวาน':    [['น้ำมันพืช',0.04,'ล.']],
+  }
+};
+
+// ── Petty Cash Logic ──
+function getPettyTotal(){ return STORE.pettyExpenses.reduce((s,e)=>s+e.amt, 0); }
+
+function addPettyExpense(){
+  const cat = document.getElementById('pettyCategory').value;
+  const amt = parseFloat(document.getElementById('pettyAmount').value);
+  const note = document.getElementById('pettyNote').value.trim();
+  if(!amt || amt <= 0){ toast('กรุณาใส่จำนวนเงิน','error'); return; }
+  const now = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  STORE.pettyExpenses.push({ cat, amt, note: note||'—', time: now });
+  document.getElementById('pettyAmount').value = '';
+  document.getElementById('pettyNote').value = '';
+  renderPettyList();
+  updateNetProfit();
+  toast(`บันทึก: ${cat} ฿${amt.toLocaleString()} ✓`, 'success');
+}
+
+function renderPettyList(){
+  const total = getPettyTotal();
+  document.getElementById('pettyTotalBadge').textContent = `฿${total.toLocaleString()} วันนี้`;
+  document.getElementById('pettyTotalRow').textContent = `฿${total.toLocaleString()}`;
+  document.getElementById('pettyPctRow').textContent = (total/STORE.revenue*100).toFixed(1)+'%';
+
+  document.getElementById('pettyList').innerHTML = STORE.pettyExpenses.map(e=>`
+    <div class="petty-row">
+      <span style="color:var(--tx3);font-family:var(--mono);font-size:10px;">${e.time}</span>
+      <span style="flex:1;margin:0 8px;">${e.cat}</span>
+      <span style="font-size:10px;color:var(--tx3);">${e.note}</span>
+      <span style="font-family:var(--mono);font-size:12px;color:#c0392b;margin-left:8px;">-฿${e.amt.toLocaleString()}</span>
+    </div>`).join('');
+}
+
+function updateNetProfit(){
+  const petty = getPettyTotal();
+  const netBase = 12890;
+  const newNet = netBase - petty + 820; // re-calc (820 was already included in base)
+  const newNetFinal = netBase - (petty - 820);
+  const netDisplay = newNetFinal >= 0 ? newNetFinal : 0;
+  const margin = (netDisplay/STORE.revenue*100).toFixed(1);
+  document.getElementById('netProfitDisplay').textContent = '฿'+netDisplay.toLocaleString();
+  document.getElementById('netMarginDisplay').textContent = `Margin ${margin}%`;
+}
+
+// ── Stock Table Render ──
+function renderStockTable(){
+  document.getElementById('stockTable').innerHTML = STORE.stocks.map(s=>`
+    <tr>
+      <td>${s.n}</td>
+      <td class="mono">${s.qStr}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="prog-track" style="width:60px;">
+            <div class="prog-fill" style="width:${s.pct}%;background:${s.pct<20?'#e74c3c':s.pct<40?'#f39c12':'#2ecc71'}"></div>
+          </div>
+          <span class="small">${s.pct}%</span>
+        </div>
+      </td>
+      <td class="mono small">${s.use}</td>
+      <td class="mono small" style="color:${parseInt(s.days)<2?'#d35400':'var(--tx3)'}">${s.days}</td>
+      <td><span class="badge ${s.st}">${s.stl}</span></td>
+    </tr>`).join('');
+}
+
+// ── Auto-PO Logic ──
+function renderAutoPO(){
+  const critical = STORE.stocks.filter(s => s.pct < 25);
+  const el = document.getElementById('autoPOSection');
+  if(critical.length === 0){ el.innerHTML=''; return; }
+
+  el.innerHTML = `
+    <div class="alert-banner sla" style="flex-direction:column;align-items:flex-start;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;width:100%;">
+        <div class="alert-icon">📋</div>
+        <div class="alert-title" style="color:#c0392b;font-size:13px;">ระบบตรวจพบ ${critical.length} รายการวิกฤต — พร้อมออก Auto-PO</div>
+      </div>
+      ${critical.map(s=>`
+        <button class="auto-po-btn" onclick="generatePO('${s.n}')">
+          <span style="font-size:18px;">📦</span>
+          <div>
+            <div class="auto-po-label">ออกใบสั่งซื้อ (Auto-PO): ${s.n}</div>
+            <div class="auto-po-detail">เหลือ ${s.qStr} · อยู่ได้ ${s.days} · ควรสั่งเพิ่ม ${s.reorderAt} ${s.unit}</div>
+          </div>
+          <span style="margin-left:auto;font-size:11px;color:#c0392b;font-weight:600;">ออก PO →</span>
+        </button>`).join('')}
+    </div>`;
+}
+
+function generatePO(itemName){
+  const item = STORE.stocks.find(s => s.n === itemName);
+  if(!item) return;
+  const now = new Date().toLocaleString('th-TH');
+  toast(`✅ ออกใบสั่งซื้อ: ${itemName} x${item.reorderAt} ${item.unit} — ${now}`, 'success');
+  quickAsk(`ออกใบสั่งซื้อ ${itemName} จำนวน ${item.reorderAt} ${item.unit} ควรซื้อจากไหน ราคาเท่าไหร่ และควรสั่งเมื่อไหร่?`);
+}
+
+// ── Urgent Stock Panel ──
+function renderUrgentStock(){
+  const urgent = STORE.stocks.filter(s => s.pct < 25);
+  document.getElementById('urgentStock').innerHTML = urgent.map(s=>`
+    <div class="sugg" onclick="quickAsk('ควรสั่ง ${s.n} เพิ่มเท่าไหร่ และซื้อจากไหนดี?')">
+      <div class="sugg-type" style="color:#e74c3c">⚠ ${s.n} — เหลือ ${s.qStr}</div>
+      <div class="sugg-text">อยู่ได้อีก ${s.days} — กดให้ AI แนะนำการสั่งซื้อ</div>
+    </div>`).join('');
+}
+
+// ── Stock Filter ──
+function filterStock(f, el){
+  document.querySelectorAll('#pane-stock .chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  const rows = document.querySelectorAll('#stockTable tr');
+  rows.forEach(r => {
+    const pct = parseInt(r.cells[2]?.querySelector('.prog-fill')?.style.width || 100);
+    if(f==='all') r.style.display = '';
+    else if(f==='crit') r.style.display = pct < 25 ? '' : 'none';
+    else r.style.display = pct >= 25 ? '' : 'none';
+  });
+}
+
+// ── Recipe Costing / Ingredient Deduction ──
+function deductIngredients(orderItems){
+  const log = [];
+  orderItems.forEach(item => {
+    const recipe = STORE.recipeMap[item.trim()];
+    if(!recipe) return;
+    recipe.forEach(([ing, qty, unit]) => {
+      const stock = STORE.stocks.find(s => s.n === ing);
+      if(stock){
+        stock.q = Math.max(0, stock.q - qty);
+        stock.qStr = stock.q + ' ' + stock.unit;
+        // Recalculate percentage (approximate: max capacity = q/(pct/100))
+        const capacity = stock.q / (stock.pct / 100);
+        stock.pct = Math.round((stock.q / (capacity + qty)) * 100);
+        stock.pct = Math.max(0, Math.min(100, stock.pct - Math.round(qty*3)));
+        stock.st = stock.pct < 20 ? 'b-coral' : stock.pct < 40 ? 'b-lime' : 'b-teal';
+        stock.stl = stock.pct < 20 ? 'วิกฤต' : stock.pct < 40 ? 'เฝ้าระวัง' : 'ปกติ';
+      }
+      log.push({ ing, qty, unit });
+    });
+  });
+  return log;
+}
+
+// ── Simulate New Order (with recipe deduction) ──
+const simulatedMenus = [
+  ['ผัดกะเพราหมู', 'เบียร์ช้าง', 'น้ำส้ม'],
+  ['ต้มยำกุ้ง', 'ข้าวสวย', 'เบียร์ช้าง'],
+  ['ปลาหมึกย่าง', 'ไวน์แดง'],
+  ['สเต็กหมู', 'น้ำมะนาว'],
+];
+let simOrderCount = 6;
+
+function simulateOrder(){
+  const tbl = Math.floor(Math.random()*5)+6;
+  const menuSet = simulatedMenus[Math.floor(Math.random()*simulatedMenus.length)];
+  const total = menuSet.length * (120 + Math.floor(Math.random()*200));
+  const log = deductIngredients(menuSet);
+
+  const newOrder = {
+    t: tbl, items: menuSet.join(', '),
+    total: '฿'+total.toLocaleString(),
+    time: new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}),
+    min: 3, st: 'รับออเดอร์', b: 'b-lime', sla: false
+  };
+  STORE.orders.push(newOrder);
+
+  // Re-render
+  renderLiveOrders();
+  renderStockTable();
+  renderAutoPO();
+  renderUrgentStock();
+  document.getElementById('live-count').textContent = STORE.orders.length;
+
+  // Show deduction log
+  if(log.length > 0){
+    document.getElementById('recipeDeductLog').innerHTML = `
+      <div class="deduct-log">
+        <div style="font-size:11px;color:var(--tx3);margin-bottom:6px;">ตัดวัตถุดิบจากออเดอร์โต๊ะ ${tbl}: ${menuSet.join(', ')}</div>
+        ${log.map(l=>`<div class="deduct-item"><span>${l.ing}</span><span class="deduct-minus">-${l.qty} ${l.unit}</span></div>`).join('')}
+      </div>`;
+  }
+  toast(`🍽️ ออเดอร์ใหม่ โต๊ะ ${tbl}: ${menuSet.join(', ')} — ตัดสต็อกแล้ว ✓`, 'success');
+  simOrderCount++;
+}
+
+// ── Live Orders Render ──
+function renderLiveOrders(){
+  document.getElementById('liveOrders').innerHTML = STORE.orders.map(o=>`
+    <div class="order-row ${o.sla?'sla-breach':''}">
+      <div class="order-tbl">${o.t}</div>
+      <div class="order-info">
+        <div class="row-center">${o.items}<span class="badge ${o.b} ml-auto">${o.st}</span></div>
+        <div class="order-items">${o.total} · สั่ง ${o.time}${o.sla?' · ⚠ SLA Breach':''}</div>
+      </div>
+      <div class="timer" style="color:${o.min>30?'#e74c3c':o.min>20?'var(--warn)':'var(--tx3)'}">${o.min}น.</div>
+    </div>`).join('');
+}
+
+// ── Staff Table Render ──
+function renderStaffTable(){
+  const totalHrs = STORE.staffData.filter(s=>s.clockedIn).reduce((s,e)=>s+e.totalHrs,0);
+  document.getElementById('totalLaborHrs').textContent = totalHrs.toFixed(1);
+
+  const activeCount = STORE.staffData.filter(s=>s.clockedIn).length;
+  document.getElementById('activeStaffBadge').textContent = `${activeCount} คน Active`;
+
+  document.getElementById('staffTable').innerHTML = STORE.staffData.map((s,i)=>`
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="staff-av" style="background:${s.clr}22;color:${s.clr};width:28px;height:28px;font-size:11px;">${s.n[0]}</div>
+          ${s.n}
+        </div>
+      </td>
+      <td class="small">${s.r}</td>
+      <td class="mono small">${s.shift}</td>
+      <td class="mono small" style="color:${s.ot!=='—'?'#e67e22':'var(--tx3)'}">${s.ot}</td>
+      <td class="mono">${s.wageStr}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="prog-track">
+            <div class="prog-fill" style="width:${s.perf}%;background:${s.perf>=90?'#2ecc71':'#f39c12'}"></div>
+          </div>
+          <span class="small">${s.perf}%</span>
+        </div>
+      </td>
+      <td>
+        ${s.clockedIn
+          ? `<div style="display:flex;flex-direction:column;gap:3px;">
+               <span class="clocked-in">● เข้างาน ${s.clockIn}</span>
+               <button class="clock-btn clock-out" onclick="clockOut(${i})">Clock-Out</button>
+             </div>`
+          : `<div style="display:flex;flex-direction:column;gap:3px;">
+               <span class="clocked-out">○ ไม่ได้เข้างาน</span>
+               <button class="clock-btn clock-in" onclick="clockIn(${i})">Clock-In</button>
+             </div>`
+        }
+      </td>
+    </tr>`).join('');
+}
+
+// ── Staff Shift Card ──
+function renderStaffShift(){
+  document.getElementById('staffShift').innerHTML = STORE.staffData.map(s=>`
+    <div class="staff-card">
+      <div class="staff-av" style="background:${s.clr}22;color:${s.clr}">${s.n[0]}</div>
+      <div>
+        <div class="staff-name">${s.n}</div>
+        <div class="staff-role">${s.r}</div>
+      </div>
+      <div style="margin-left:auto;text-align:right;">
+        <div class="mono small" style="color:var(--tx3)">${s.shift}</div>
+        <div style="font-size:10px;margin-top:2px;">${s.clockedIn
+          ? `<span style="color:#1a8888;">● ${s.totalHrs.toFixed(1)} ชม.</span>`
+          : '<span style="color:var(--tx3);">○ ยังไม่เข้า</span>'
+        }</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── Clock In / Out ──
+function clockIn(idx){
+  const now = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  STORE.staffData[idx].clockedIn = true;
+  STORE.staffData[idx].clockIn = now;
+  STORE.staffData[idx].totalHrs = 0;
+  renderStaffTable();
+  renderStaffShift();
+  renderSPLH();
+  toast(`✅ ${STORE.staffData[idx].n} เข้างานแล้ว — ${now}`, 'success');
+}
+
+function clockOut(idx){
+  const s = STORE.staffData[idx];
+  const hoursWorked = s.totalHrs || (Math.random()*3+5);
+  STORE.staffData[idx].clockedIn = false;
+  STORE.staffData[idx].totalHrs = hoursWorked;
+  renderStaffTable();
+  renderStaffShift();
+  renderSPLH();
+  toast(`🕐 ${s.n} ออกงาน — รวม ${hoursWorked.toFixed(1)} ชม. ค่าแรง ฿${s.wage}`, 'info');
+}
+
+// ── SPLH (Sales per Labor Hour) Render ──
+const splhHours    = ['14','15','16','17','18','19','20','21'];
+const splhRevenue  = [1200, 2100, 3400, 4800, 6200, 8900, 7400, 4100];
+const splhStaff    = [2, 3, 5, 6, 7, 7, 7, 6]; // active staff count each hour
+const splhVals     = splhRevenue.map((r,i) => Math.round(r / splhStaff[i]));
+const splhMax      = Math.max(...splhVals);
+
+function renderSPLH(){
+  const totalHrs = STORE.staffData.filter(s=>s.clockedIn).reduce((s,e)=>s+e.totalHrs,0);
+  const el = document.getElementById('splhBars');
+  el.innerHTML = splhHours.map((h,i) => {
+    const hPct = Math.round(splhRevenue[i]/Math.max(...splhRevenue)*100);
+    const sPct = Math.round(splhVals[i]/splhMax*100);
+    const isHigh = splhVals[i] >= 950;
+    return `
+      <div class="splh-bar-group">
+        <div style="font-family:var(--mono);font-size:8px;color:${isHigh?'#1a8888':'var(--tx3)'};">฿${(splhVals[i]/1000).toFixed(1)}k</div>
+        <div class="splh-bar" style="height:${hPct}%;background:${isHigh?'rgba(94,196,196,.6)':'rgba(122,184,245,.35)'};border:1px solid ${isHigh?'rgba(94,196,196,.6)':'var(--border)'}"></div>
+        <div class="staff-count-dot">${splhStaff[i]}คน</div>
+        <div class="bar-lbl">${h}</div>
+      </div>`;
+  }).join('');
+}
+
+// ── Hour Bars (Dashboard) ──
+function renderHourBars(){
+  const hLabels = ['14','15','16','17','18','19','20','21'];
+  const hVals   = [1200, 2100, 3400, 4800, 6200, 8900, 7400, 4100];
+  const hMax    = Math.max(...hVals);
+  const el      = document.getElementById('hourBars');
+  el.innerHTML  = hLabels.map((l,i) => {
+    const p = Math.round(hVals[i]/hMax*100);
+    const isNow = i===5;
+    return `<div class="bar-w">
+      <div class="bar" style="height:${p}%;background:${isNow?'var(--a1)':'var(--s3)'};border:1px solid ${isNow?'rgba(122,184,245,.5)':'var(--border)'}"></div>
+      <div class="bar-lbl">${l}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Week Bars ──
+function renderWeekBars(){
+  const wD  = ['จ','อ','พ','พฤ','ศ','ส','อา'];
+  const wV  = [18000, 22000, 15000, 28000, 31000, 45200, 31480];
+  const wMax= Math.max(...wV);
+  const el  = document.getElementById('weekBars');
+  if(!el) return;
+  el.innerHTML = wD.map((l,i) => {
+    const p = Math.round(wV[i]/wMax*100);
+    return `<div class="bar-w">
+      <div class="bar" style="height:${p}%;background:${i===6?'var(--a1)':'var(--s3)'};border:1px solid ${i===6?'rgba(122,184,245,.5)':'var(--border)'}"></div>
+      <div class="bar-lbl">${l}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Month Bars ──
+function renderMonthBars(){
+  const mV  = [24000,31000,18000,28000,35000,42000,29000,38000,22000,31000,27000,33000,45200,31480,28000,36000,41000,39000,28000,34000,29000,38000,45000,32000,28000,31000,42000,38000,35000,31480];
+  const mMax= Math.max(...mV);
+  const el  = document.getElementById('monthBars');
+  if(!el) return;
+  el.innerHTML = mV.map((v,i) => {
+    const p = Math.round(v/mMax*100);
+    return `<div class="bar-w">
+      <div class="bar" style="height:${p}%;background:${i===mV.length-1?'var(--a1)':'var(--s3)'};border:1px solid ${i===mV.length-1?'rgba(122,184,245,.5)':'var(--border)'}"></div>
+    </div>`;
+  }).join('');
+}
+
+// ── Top Menu (Dashboard) ──
+function renderTopMenu(){
+  const topMenus = [
+    {n:'เบียร์ช้าง',    c:24, p:100, clr:'#5ec4c4'},
+    {n:'ปลาหมึกย่าง', c:14, p:58,  clr:'#7ab8f5'},
+    {n:'ผัดกะเพราหมู', c:11, p:46,  clr:'#8898e0'},
+    {n:'วิสกี้แดง',     c:9,  p:38,  clr:'#90c0f0'},
+    {n:'ต้มยำกุ้ง',     c:7,  p:29,  clr:'#90b0d0'},
+  ];
+  document.getElementById('topMenuDash').innerHTML = topMenus.map(m=>`
+    <div class="prog-row">
+      <div class="prog-name">${m.n}</div>
+      <div class="prog-track"><div class="prog-fill" style="width:${m.p}%;background:${m.clr}"></div></div>
+      <div class="prog-val" style="color:${m.clr}">${m.c}</div>
+    </div>`).join('');
+}
+
+// ── Crit Stock (Dashboard) ──
+function renderCritStock(){
+  const critItems = STORE.stocks.filter(s=>s.pct<25).map(s=>({
+    n: s.n, q: s.qStr, clr: '#c0392b', days: s.days
+  }));
+  document.getElementById('critStockDash').innerHTML = critItems.map(s=>`
+    <div class="sugg" onclick="quickAsk('ควรสั่ง ${s.n} เพิ่มเท่าไหร่?')">
+      <div class="sugg-type" style="color:${s.clr}">⚠ ${s.n}</div>
+      <div class="sugg-text">เหลือ ${s.q} · อยู่ได้ ${s.days} — กดให้ AI แนะนำ</div>
+    </div>`).join('');
+}
+
+// ── Staff (Dashboard) ──
+function renderStaffDash(){
+  const staffList = STORE.staffData.filter(s=>s.clockedIn).slice(0,4);
+  document.getElementById('staffDash').innerHTML = staffList.map(s=>`
+    <div class="staff-card">
+      <div class="staff-av" style="background:${s.clr}22;color:${s.clr}">${s.n[0]}</div>
+      <div><div class="staff-name">${s.n}</div><div class="staff-role">${s.r}</div></div>
+      <div class="staff-hrs" style="color:var(--tx3)">${s.totalHrs.toFixed(1)}ชม.</div>
+    </div>`).join('');
+}
+
+// ── Menu Table ──
+function renderMenuTable(){
+  const menus = [
+    {n:'เบียร์ช้าง 620ml',         price:'฿80',  cost:'฿25',  margin:69, sold:24, st:'b-teal'},
+    {n:'วิสกี้แดง (แบ่งขาย)',       price:'฿180', cost:'฿58',  margin:68, sold:9,  st:'b-teal'},
+    {n:'ผัดกะเพราหมู + ข้าว',       price:'฿80',  cost:'฿32',  margin:60, sold:11, st:'b-lime'},
+    {n:'ปลาหมึกย่าง',               price:'฿160', cost:'฿115', margin:28, sold:14, st:'b-coral'},
+    {n:'ต้มยำกุ้ง',                  price:'฿180', cost:'฿108', margin:40, sold:7,  st:'b-lime'},
+    {n:'ไวน์แดง (แก้ว)',             price:'฿280', cost:'฿90',  margin:68, sold:4,  st:'b-teal'},
+    {n:'สเต็กหมู',                   price:'฿220', cost:'฿88',  margin:60, sold:3,  st:'b-lime'},
+    {n:'สปาเกตตี้คาร์บอนาร่า',      price:'฿150', cost:'฿110', margin:27, sold:2,  st:'b-coral'},
+  ];
+  document.getElementById('menuTable').innerHTML = menus.map(m=>`
+    <tr>
+      <td>${m.n}</td>
+      <td class="mono">${m.price}</td>
+      <td class="mono small">${m.cost}</td>
+      <td><span class="mono" style="color:${m.margin>=60?'#1a8888':m.margin>=45?'#e67e22':'#c0392b'}">${m.margin}%</span></td>
+      <td class="mono">${m.sold}</td>
+      <td><span class="badge ${m.st}">${m.margin>=60?'กำไรดี':m.margin>=40?'ปานกลาง':'ปรับราคา'}</span></td>
+    </tr>`).join('');
+}
+
+// ── Done Orders ──
+function renderDoneOrders(){
+  const done = [
+    {t:1, items:'ทะเลผัดผงกะหรี่',           total:'฿420', time:'17:45', dur:'15น.'},
+    {t:4, items:'ผัดไทยกุ้ง, ลาบหมู',          total:'฿560', time:'17:30', dur:'18น.'},
+    {t:6, items:'วิสกี้เขียว ×1, โซดา',         total:'฿890', time:'17:15', dur:'5น.' },
+    {t:8, items:'ปลาราดพริก, ข้าวสวย',         total:'฿380', time:'17:00', dur:'22น.'},
+    {t:9, items:'เบียร์ช้าง ×6',               total:'฿720', time:'16:40', dur:'3น.' },
+  ];
+  document.getElementById('doneOrders').innerHTML = done.map(o=>`
+    <tr>
+      <td class="hl mono">${o.t}</td>
+      <td style="color:var(--tx2)">${o.items}</td>
+      <td class="mono">${o.total}</td>
+      <td class="mono small">${o.time}</td>
+      <td class="mono small">${o.dur}</td>
+    </tr>`).join('');
+}
+
+// ── Table Map ──
+function renderTableMap(){
+  const tables = Array.from({length:12},(_,i)=>i+1);
+  const busy   = [3,5,7,2,11,9,4,8,1];
+  const slaTbl = [11];
+  document.getElementById('tableMap').innerHTML = tables.map(n=>{
+    const isBusy = busy.includes(n);
+    const isSLA  = slaTbl.includes(n);
+    return `<div style="background:${isSLA?'#fff0f0':isBusy?'#f0f8ff':'var(--s3)'};border:1.5px solid ${isSLA?'#e74c3c':isBusy?'var(--a1)':'var(--border)'};border-radius:10px;padding:10px;text-align:center;cursor:pointer;transition:.15s;" onclick="toast('โต๊ะ ${n}: ${isSLA?'⚠ SLA Breach':isBusy?'มีลูกค้า':'ว่าง'}')">
+      <div class="mono fw6" style="font-size:16px;color:${isSLA?'#c0392b':isBusy?'#2060a0':'var(--tx3)'}">${n}</div>
+      <div style="font-size:10px;color:${isSLA?'#c0392b':isBusy?'#1a8888':'var(--tx3)'};">${isSLA?'SLA!':isBusy?'ใช้อยู่':'ว่าง'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Proactive Alert Banners (Dashboard) ──
+function renderDashAlerts(){
+  const alerts = [
+    { type:'sla',  icon:'🚨', title:'SLA Breach — โต๊ะ 11',            desc:'รออาหาร 50 นาที เกินเกณฑ์ 30 นาที — กรุณาแจ้งลูกค้าและเร่งครัวทันที', time:'18:13' },
+    { type:'warn', icon:'⚠️', title:'สต็อกวิสกี้แดงวิกฤต',              desc:'เหลือ 2 ขวด คาดขายได้อีก 6 แก้วคืนนี้ — ควรสั่งเพิ่มภายในชั่วโมงนี้', time:'18:45' },
+    { type:'info', icon:'💡', title:'คืนศุกร์: คาดลูกค้าเพิ่ม 35%',     desc:'ควรเรียกพนักงานสำรอง 1–2 คน และเตรียมสต็อกเพิ่มสำหรับช่วงดึก', time:'ทำนาย' },
+    { type:'ok',   icon:'✅', title:'ยอดขายเกินเป้า 12.4%',             desc:'฿31,480 จากเป้า ฿28,000 · กำไรขั้นต้น 63.2% — ดีกว่าสัปดาห์ที่แล้ว', time:'ปัจจุบัน' },
+  ];
+  document.getElementById('dashAlerts').innerHTML = alerts.map(a=>`
+    <div class="alert-banner ${a.type}">
+      <div class="alert-icon">${a.icon}</div>
+      <div class="alert-body">
+        <div class="alert-title">${a.title}</div>
+        <div class="alert-desc">${a.desc}</div>
+      </div>
+      <div class="alert-time">${a.time}</div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════
+// ── EOD Report Generation ──
+// ═══════════════════════════
+
+function generateEOD(){
+  const pettyTotal = getPettyTotal();
+  const netProfit  = 12890 - (pettyTotal - 820);
+  const context    = `สรุปผลประจำวัน (EOD Report) ในภาษาไทย กระชับ เป็นหัวข้อ 5 ข้อ แบบ bullet points:
+  - ยอดขาย ฿31,480 (เป้า ฿28,000) กำไรขั้นต้น 63.2%
+  - SLA Breach: โต๊ะ 11 รอ 50 นาที
+  - สต็อกวิกฤต 3 รายการ: วิสกี้แดง, น้ำมันพืช, เนื้อหมู
+  - SPLH ฿992/ชม. (เป้า ฿950) พนักงาน 7 คน ชม.รวม 31.7ชม.
+  - กำไรสุทธิหลังหักเบ็ดเตล็ด ฿${netProfit.toLocaleString()} (${(netProfit/31480*100).toFixed(1)}%)
+  - เมนูขายดี: เบียร์ช้าง 24, ปลาหมึกย่าง 14, ผัดกะเพรา 11
+  ให้ข้อสรุป 5 ข้อที่มีตัวเลขจริง และให้คำแนะนำสำหรับพรุ่งนี้ด้วย`;
+  go('ai', document.querySelectorAll('.sb-item')[7]);
+  setTimeout(() => {
+    document.getElementById('ai-in').value = context;
+    sendAI();
+  }, 150);
+}
+
+function runEODviaAI(){
+  quickAsk('สร้างรายงานสรุปวันนี้ (EOD Report) ครบ 5 ข้อ พร้อมคำแนะนำสำหรับพรุ่งนี้ โดยใช้ข้อมูลร้านที่มี');
+}
+
+// ════════════════════════════
+// ── AI Chat Integration ──
+// ════════════════════════════
+/*
+  PRODUCTION NOTE:
+  Replace the fetch() below with a call to your own backend proxy endpoint.
+  Example backend route (Node.js/Express):
+    app.post('/api/ai-chat', async (req, res) => {
+      const { messages } = req.body;
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'anthropic-version': '2023-06-01',
+          'x-api-key': process.env.ANTHROPIC_API_KEY
+        },
+        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: SYSTEM_PROMPT, messages })
+      });
+      const data = await response.json();
+      res.json(data);
+    });
+*/
+const AI_CONTEXT = `คุณคือ RESTO Intelligence ผู้ช่วยบริหารร้านอาหารและบาร์ระดับมืออาชีพ ตอบภาษาไทยเสมอ กระชับ ให้ข้อมูลเชิงตัวเลขและคำแนะนำที่นำไปใช้ได้จริงทันที
+ข้อมูลร้านปัจจุบัน:
+- รายได้วันนี้: ฿31,480 (เป้า ฿28,000) กำไรขั้นต้น 63.2%
+- ช่องทางชำระ: เงินสด 42% (฿13,221), QR/PromptPay 35% (฿11,018), บัตรเครดิต 15% (฿4,722), Delivery 8% (฿2,519)
+- โต๊ะ 9/12, ออเดอร์ค้าง 5 รายการ, โต๊ะ 11 รอ 50 นาที (SLA Breach)
+- สต็อกวิกฤต: วิสกี้แดง 2 ขวด, น้ำมันพืช 1.5ล., เนื้อหมู 2.1กก.
+- พนักงาน 7 คน, ค่าแรงวันนี้ ฿4,200 (13.3%), SPLH ฿992/ชม.
+- เมนูขายดี: เบียร์ช้าง 24, ปลาหมึกย่าง 14, ผัดกะเพรา 11
+- กำไรสูงสุด: เหล้า 68%, ไวน์ 68%, ผัดกะเพรา 60%
+- เมนูกำไรต่ำ: ปลาหมึกย่าง 28%, สปาเกตตี้ 27%
+- รายได้สัปดาห์: ฿187,340, เดือน: ฿742,800
+- คืนนี้วันศุกร์ คาดลูกค้าเพิ่ม 35%
+ให้คำแนะนำที่เฉพาะเจาะจง มีตัวเลข และนำไปทำได้ทันที`;
+
+let aiMsgCount = 0;
+let chatHistory = [];
+
+async function sendAI(){
+  const inp = document.getElementById('ai-in');
+  const msg = inp.value.trim();
+  if(!msg) return;
+  inp.value = '';
+  addMsg(msg,'u');
+  chatHistory.push({role:'user', content:msg});
+  const tid = 't'+Date.now();
+  addMsgRaw(`<div id="${tid}" class="msg msg-ai"><div class="thinking-row"><div class="spin"></div>กำลังวิเคราะห์ข้อมูลร้านให้คุณ... 📊</div></div>`);
+  const msgs = document.getElementById('ai-msgs');
+  msgs.scrollTop = msgs.scrollHeight;
+
+  try{
+    /*
+      SECURITY: In production, replace this URL with your own backend endpoint:
+      const r = await fetch('/api/ai-chat', { method:'POST', ... })
+      Do NOT include an API key here in client-side code.
+    */
+    const r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+        // In production: 'x-api-key' is set only on the server side
+      },
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        system: AI_CONTEXT,
+        messages: chatHistory
+      })
+    });
+    const d = await r.json();
+    const rep = d.content?.[0]?.text || 'ขออภัยครับ ไม่สามารถดึงข้อมูลได้ในขณะนี้';
+    chatHistory.push({role:'assistant', content:rep});
+    document.getElementById(tid).innerHTML = rep.replace(/\n/g,'<br>') + `<div class="msg-t">${new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}</div>`;
+    aiMsgCount++;
+    document.getElementById('ai-cnt').textContent = aiMsgCount;
+    document.getElementById('t-saved').textContent = aiMsgCount*4;
+  } catch(e){
+    document.getElementById(tid).innerHTML = '⚠ ไม่สามารถเชื่อมต่อกับ RESTO Intelligence Server ได้ กรุณาตั้งค่า API Key ให้ถูกต้อง<div class="msg-t">error</div>';
+    chatHistory.pop();
+  }
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addMsg(txt, type){
+  const now = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('ai-msgs').innerHTML += `<div class="msg msg-${type}">${txt}<div class="msg-t">${now}</div></div>`;
+}
+function addMsgRaw(html){
+  document.getElementById('ai-msgs').innerHTML += html;
+}
+function clearChat(){
+  chatHistory = [];
+  document.getElementById('ai-msgs').innerHTML = `<div class="msg msg-ai">ล้างประวัติแล้วครับ ระบบพร้อมรับคำถามใหม่<div class="msg-t">${new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}</div></div>`;
+}
+function quickAsk(msg){
+  go('ai', document.querySelectorAll('.sb-item')[7]);
+  setTimeout(() => {
+    document.getElementById('ai-in').value = msg;
+    sendAI();
+  }, 120);
+}
+
+// ════════════════════════════
+// ── INITIALIZATION (Boot)
+// ════════════════════════════
+(function init(){
+  renderHourBars();
+  renderWeekBars();
+  renderMonthBars();
+  renderTopMenu();
+  renderCritStock();
+  renderStaffDash();
+  renderLiveOrders();
+  renderDoneOrders();
+  renderTableMap();
+  renderStockTable();
+  renderUrgentStock();
+  renderAutoPO();
+  renderStaffTable();
+  renderStaffShift();
+  renderSPLH();
+  renderMenuTable();
+  renderPettyList();
+  updateNetProfit();
+  renderDashAlerts();
+})();
+</script>
+</body>
+</html>
